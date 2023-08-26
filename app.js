@@ -1,13 +1,17 @@
 const express = require("express");
+const serverless = require("serverless-http");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const router = express.Router();
 const _ = require("lodash");
+const dotenv =require("dotenv");
 // const date = require(__dirname + "/date.js");
 
 // console.log(date());
 
 const app = express();
 
+require("dotenv").config();
 
 app.set("view engine", "ejs");
 
@@ -15,7 +19,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(express.static("public"));
 
-mongoose.connect("mongodb+srv://anuragkum135:Q8Y6psvGRuXdz8dc@cluster0.ymktxjm.mongodb.net/todolistDB", {family: 4});
+const URL = process.env.URL;
+
+mongoose.connect(URL, {family: 4});
 
 const itemsSchema = new mongoose.Schema({
     name: String
@@ -146,3 +152,7 @@ app.post("/work", function(req, res){
 app.listen(process.env.PORT || 3000, function(){
     console.log('Server started on port 3000');
 });
+
+app.use('/.netlify/function/api', router);
+
+module.exports.handler = serverless(app);
